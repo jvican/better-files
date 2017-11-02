@@ -54,8 +54,7 @@ lazy val commonSettings = Seq(
     "-Ywarn-unused:privates",            // Warn if a private member is unused.
     "-Ywarn-value-discard"               // Warn when non-Unit expression results are unused.
   ),
-  libraryDependencies += Dependencies.scalatest,
-  updateImpactOpenBrowser := false
+  libraryDependencies += Dependencies.scalatest
 )
 
 lazy val core = (project in file("core"))
@@ -100,37 +99,8 @@ lazy val benchmarks = (project in file("benchmarks"))
 
 lazy val root = (project in file("."))
   .settings(commonSettings: _*)
-  .settings(docSettings: _*)
   .settings(noPublishSettings: _*)
-  .settings(releaseSettings: _*)
   .aggregate(core, akka, shapelessScanner, benchmarks)
-
-import UnidocKeys._
-lazy val docSettings = unidocSettings ++ site.settings ++ ghpages.settings ++ Seq(
-  autoAPIMappings := true,
-  unidocProjectFilter in (ScalaUnidoc, unidoc) := inProjects(core, akka),
-  SiteKeys.siteSourceDirectory := file("site"),
-  site.addMappingsToSiteDir(mappings in (ScalaUnidoc, packageDoc), "latest/api"),
-  git.remoteRepo := s"git@github.com:$username/$repo.git"
-)
-
-import ReleaseTransformations._
-lazy val releaseSettings = Seq(
-  releaseProcess := Seq[ReleaseStep](
-    checkSnapshotDependencies,
-    inquireVersions,
-    //runClean,
-    runTest,
-    setReleaseVersion,
-    commitReleaseVersion,
-    tagRelease,
-    publishArtifacts,
-    setNextVersion,
-    commitNextVersion,
-    releaseStepCommand("sonatypeReleaseAll"),
-    pushChanges
-  )
-)
 
 lazy val noPublishSettings = Seq(
   publish := (),
@@ -143,8 +113,6 @@ lazy val publishSettings = Seq(
   licenses += "MIT" -> url(s"https://github.com/$username/$repo/blob/master/LICENSE"),
   scmInfo := Some(ScmInfo(url(s"https://github.com/$username/$repo"), s"git@github.com:$username/$repo.git")),
   apiURL := Some(url(s"https://$username.github.io/$repo/latest/api/")),
-  releaseCrossBuild := true,
-  releasePublishArtifactsAction := PgpKeys.publishSigned.value,
   publishMavenStyle := true,
   publishArtifact in Test := false,
   publishTo := Some(if (isSnapshot.value) Opts.resolver.sonatypeSnapshots else Opts.resolver.sonatypeStaging),
